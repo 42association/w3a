@@ -15,14 +15,12 @@ import { Web3Auth } from "@web3auth/modal";
 import { useEffect, useState } from "react";
 import Web3 from "web3";
 
-const clientId =process.env.NEXT_PUBLIC_W3A; // get from https://dashboard.web3auth.io
+const clientId =process.env.NEXT_PUBLIC_W3A;
 
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
-  chainId: "0x14A34", // hex of 84532
+  chainId: "0x14A34",
   rpcTarget: "https://sepolia.base.org",
-  // Avoid using public rpcTarget in production.
-  // Use services like Infura, Quicknode etc
   displayName: "Base Sepolia",
   blockExplorerUrl: "https://sepolia-explorer.base.org",
   ticker: "ETH",
@@ -45,7 +43,7 @@ const web3auth = new Web3Auth({
 
 export default function Home() {
   const [provider, setProvider] = useState<IProvider | null>(null);
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(true);
   const [loginName, setLoginName] = useState<string>("login");
   const [studentEmail, setStudentEmail] = useState<string>("");
   const [copytext, setCopytext] = useState<string>("");
@@ -126,10 +124,6 @@ export default function Home() {
         if (web3auth.connected) {
           setLoggedIn(true);
         }
-        // else {
-        //   // Web3Authの初期化が完了した後にloginを自動的に実行
-        //   await login();
-        // }
       } catch (error) {
         console.error(error);
       }
@@ -145,22 +139,7 @@ export default function Home() {
     setCopytext(`${loginName}@student.42tokyo.jp`);
   }, [loginName]);
 
-  function trySetValue(retriesLeft: number) {
-    setTimeout(() => {
-      try {
-        var elements = document.getElementsByName("passwordless-input");
-        if (elements.length === 0)
-          throw "Element 'passwordless-input' not found";
-        elements[0].value = "naito0219@outlook.jp";
-      } catch (error) {
-        console.error(error);
-        if (retriesLeft > 0) trySetValue(retriesLeft - 1);
-      }
-    }, 20);
-  }
-
   const login = async () => {
-    // trySetValue(5); // 5回試行する
     const web3authProvider = await web3auth.connect();
     setProvider(web3authProvider);
     if (web3auth.connected) {
@@ -187,7 +166,6 @@ export default function Home() {
     }
     const web3 = new Web3(provider as any);
 
-    // Get user's Ethereum public address
     const address = await web3.eth.getAccounts();
     uiConsole(address);
   };
@@ -199,12 +177,10 @@ export default function Home() {
     }
     const web3 = new Web3(provider as any);
 
-    // Get user's Ethereum public address
     const address = (await web3.eth.getAccounts())[0];
 
-    // Get user's balance in ether
     const balance = web3.utils.fromWei(
-      await web3.eth.getBalance(address), // Balance is in wei
+      await web3.eth.getBalance(address),
       "ether"
     );
     uiConsole(balance);
@@ -217,16 +193,14 @@ export default function Home() {
     }
     const web3 = new Web3(provider as any);
 
-    // Get user's Ethereum public address
     const fromAddress = (await web3.eth.getAccounts())[0];
 
     const originalMessage = "YOUR_MESSAGE";
 
-    // Sign the message
     const signedMessage = await web3.eth.personal.sign(
       originalMessage,
       fromAddress,
-      "test password!" // configure your own password here.
+      "test password!"
     );
     uiConsole(signedMessage);
   };
@@ -307,10 +281,6 @@ export default function Home() {
       </div>
     </div>
   );
-
-  // <button onClick={login} className="card">
-  //   Login
-  // </button>
 
   return (
     <div className="container">
